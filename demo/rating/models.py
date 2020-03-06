@@ -22,6 +22,7 @@ class Module(models.Model):
     module_name = models.CharField(max_length=20)
     description = models.TextField()
     module_id = models.IntegerField(primary_key=True)
+    prof = models.ManyToManyField(Professor)
 
     def __str__(self):
         return self.module_name
