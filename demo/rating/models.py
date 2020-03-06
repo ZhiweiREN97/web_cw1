@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 
+
 class User(models.Model):
     username = models.CharField(max_length = 16,unique = True)
     password = models.CharField(max_length = 16)
@@ -26,3 +27,12 @@ class Module(models.Model):
 
     def __str__(self):
         return self.module_name
+
+class Score(models.Model):
+    score_id = models.IntegerField(primary_key = True)
+    score = models.IntegerField()
+    professor = models.ForeignKey(Professor, on_delete = models.CASCADE)
+    module = models.ForeignKey(Module, on_delete = models.CASCADE)
+
+    def __str__(self):
+        return self.score
