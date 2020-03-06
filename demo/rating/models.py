@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.core.validators import MaxValueValidator, MinValueValidator
 # Create your models here.
 
 
@@ -30,9 +30,15 @@ class Module(models.Model):
 
 class Score(models.Model):
     score_id = models.IntegerField(primary_key = True)
-    score = models.IntegerField()
+    score = models.IntegerField(
+        default=1,
+        validators=[
+            MaxValueValidator(5),
+            MinValueValidator(1)
+        ]
+    )
     professor = models.ForeignKey(Professor, on_delete = models.CASCADE)
     module = models.ForeignKey(Module, on_delete = models.CASCADE)
 
     def __str__(self):
-        return self.score
+        return "Module: " + self.module.module_name + " Prof: " +self.professor.lastname + " Score: " + str(self.score)
