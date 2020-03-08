@@ -91,7 +91,7 @@ class AvgAPIView(APIView):
             avg += i.score
             count += 1
         avg = avg /count
-        message = "The rating of Professor %s (%s) is %f" %(prof.lastname, prof.p_id, avg)
+        message = "The rating of Professor %s (%s) in module %s (%s) is %f" %(prof.lastname, prof.p_id, module.module_name, module.module_id,avg)
         return Response({"message":message},status=HTTP_200_OK)
 
 
