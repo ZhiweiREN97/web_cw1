@@ -14,7 +14,7 @@ from rest_framework.serializers import Serializer
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rating.permissions import IsOwnerOrReadOnly
 
-
+#Login
 class UserLoginAPIView(APIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -34,6 +34,7 @@ class UserLoginAPIView(APIView):
             return Response(new_data, status=HTTP_200_OK)
         return Response('password error', HTTP_400_BAD_REQUEST)
 
+#Register
 class UserRegisterAPIView(APIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -50,6 +51,7 @@ class UserRegisterAPIView(APIView):
             return Response(serializer.data,status=HTTP_200_OK)
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
+#Logout
 class LogoutAPIView(APIView):
     def post(self, requests, format=None):
         # if session['user_id'] does not exists
@@ -61,19 +63,22 @@ class LogoutAPIView(APIView):
         else:
             return Response({"message":"You have not logged in yet"},status=HTTP_400_BAD_REQUEST)
 
-
+#List All user
 class UsersAPIView(ListCreateAPIView):
     serializer_class = UserSerializer
     queryset = User.objects.all()
 
+#List a user
 class UserAPIView(ListCreateAPIView):
     serializer_class = UserSerializer
     queryset = User.objects.all()
 
+#List all modules
 class ModuleAPIView(ListAPIView):
     serializer_class = ModuleSerializer
     queryset = Module.objects.all()
 
+#Avg of one module one professor
 class AvgAPIView(APIView):
     serializer_class = AvgSerializer
     queryset = Score.objects.all()
@@ -94,7 +99,7 @@ class AvgAPIView(APIView):
         message = "The rating of Professor %s (%s) in module %s (%s) is %f" %(prof.lastname, prof.p_id, module.module_name, module.module_id,avg)
         return Response({"message":message},status=HTTP_200_OK)
 
-
+#Rating of all professors
 class AllRatingAPIView(ListAPIView):
     def post(self, request, format=None):
         profset = Professor.objects.all()
