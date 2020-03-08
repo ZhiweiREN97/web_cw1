@@ -27,6 +27,9 @@ class UserLoginAPIView(APIView):
         print (username)
         password = data.get('password')
         user = User.objects.get(username=username)
+        if self.request.session['user_id'] is not None:
+            return Response({"message":"You have already logged in!"},status=HTTP_400_BAD_REQUEST)
+            
         if user.password == password:
             serializer = UserSerializer(user)
             new_data = serializer.data

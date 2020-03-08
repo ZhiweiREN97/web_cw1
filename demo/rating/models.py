@@ -4,9 +4,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class User(models.Model):
-    username = models.CharField(max_length=16, unique=True)
+    username = models.CharField(max_length=16, primary_key=True)
     password = models.CharField(max_length=16)
-    u_id = models.IntegerField(primary_key=True)
 
     def __str__(self):
         return self.username
@@ -23,7 +22,6 @@ class userToken(models.Model):
 class Professor(models.Model):
     firstname = models.CharField(max_length=10)
     lastname = models.CharField(max_length=10)
-    prof_id = models.IntegerField(primary_key=True)
 
     def __str__(self):
         return self.firstname
@@ -44,4 +42,13 @@ class Module(models.Model):
     def __str__(self):
         return self.module_name
 
-
+class Score(models.Model):
+    score = models.IntegerField(default=1,validators=[
+        MaxValueValidator(5),
+        MinValueValidator(1)
+    ])
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    professor = models.ForeignKey(Professor, on_delete=models.CASCADE)
+    module = models.ForeignKey(Module, on_delete=models.CASCADE)
+    def __str__(self):
+        return str(self.score) +" of module " + self.module.module_name + ", professor " + self.professor.lastname
