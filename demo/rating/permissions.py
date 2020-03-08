@@ -13,4 +13,4 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        return obj.owner.id == request.session.get('user_id')
+        return obj.user.id == request.session.get('user_id')
