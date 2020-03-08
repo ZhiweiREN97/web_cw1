@@ -95,6 +95,25 @@ class AvgAPIView(APIView):
         return Response({"message":message},status=HTTP_200_OK)
 
 
+class AllRatingAPIView(ListAPIView):
+    def post(self, request, format=None):
+        profset = Professor.objects.all()
+        message = ""
+        for i in profset:
+            avg_rating = 0
+            count = 0
+            scoreset = Score.objects.filter(professor = i)
+            for j in scoreset:
+                avg_rating += j.score
+                count += 1
+            avg_rating = avg_rating / count
+            message = message + "The rating of professor %s (%s) is %f \n" %(i.lastname, i.p_id, avg_rating) 
+        return Response({"message":message},status=HTTP_200_OK)
+
+
+
+
+
 
 class ScoreViewSet(viewsets.ModelViewSet):
     queryset = Score.objects.all()
