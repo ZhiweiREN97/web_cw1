@@ -10,4 +10,5 @@ urlpatterns = [
     path('register/',UserRegisterAPIView.as_view()),
     path('login/',UserLoginAPIView.as_view()),
     path('logout/',LogoutAPIView.as_view()),
+    path('modules/',ModuleAPIView.as_view())
 ]

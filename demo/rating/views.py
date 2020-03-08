@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rating.models import User, userToken, Score, Professor, Module
-from rating.serializers import UserSerializer, ScoreSerializer
+from rating.serializers import UserSerializer, ScoreSerializer, ModuleSerializer
 from rest_framework.generics import ListCreateAPIView
 from django.http import JsonResponse
 from rest_framework.views import APIView
@@ -66,6 +66,10 @@ class LogoutAPIView(APIView):
 class UsersAPIView(ListCreateAPIView):
     serializer_class = UserSerializer
     queryset = User.objects.all()
+
+class ModuleAPIView(ListCreateAPIView):
+    serializer_class = ModuleSerializer
+    queryset = Module.objects.all()
 
 class UserAPIView(ListCreateAPIView):
     serializer_class = UserSerializer
