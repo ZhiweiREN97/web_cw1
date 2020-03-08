@@ -10,7 +10,15 @@ class User(models.Model):
 
     def __str__(self):
         return self.username
+    def verify_password(self,password):
+        return self.password == password
 
+class userToken(models.Model):
+    username = models.OneToOneField(to='User',on_delete=models.DO_NOTHING)
+    token = models.CharField(max_length=60)
+
+    def __str__(self):
+        return self.username.username +"'s token"
 
 class Professor(models.Model):
     firstname = models.CharField(max_length=10)
@@ -37,17 +45,3 @@ class Module(models.Model):
         return self.module_name
 
 
-class Score(models.Model):
-    score_id = models.IntegerField(primary_key=True)
-    score = models.IntegerField(
-        default=1,
-        validators=[
-            MaxValueValidator(5),
-            MinValueValidator(1)
-        ]
-    )
-    professor = models.ForeignKey(Professor, on_delete=models.CASCADE)
-    module = models.ForeignKey(Module, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return "Module: " + self.module.module_name + " Prof: " + self.professor.lastname + " Score: " + str(self.score)
