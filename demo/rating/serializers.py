@@ -18,3 +18,6 @@ class ModuleSerializer(serializers.ModelSerializer):
         fields = ('module_id', 'module_name','year','semester','prof')
 
 
+class AvgSerializer(serializers.Serializer):
+    class Meta:
+        fields = ('p_id','module_id')

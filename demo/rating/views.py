@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rating.models import User, userToken, Score, Professor, Module
-from rating.serializers import UserSerializer, ScoreSerializer, ModuleSerializer
-from rest_framework.generics import ListCreateAPIView
+from rating.serializers import *
+from rest_framework.generics import ListCreateAPIView, ListAPIView
 from django.http import JsonResponse
 from rest_framework.views import APIView
 import time
@@ -12,7 +12,6 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
-from rest_framework.views import APIView
 from rating.permissions import IsOwnerOrReadOnly
 
 
@@ -67,13 +66,35 @@ class UsersAPIView(ListCreateAPIView):
     serializer_class = UserSerializer
     queryset = User.objects.all()
 
-class ModuleAPIView(ListCreateAPIView):
-    serializer_class = ModuleSerializer
-    queryset = Module.objects.all()
-
 class UserAPIView(ListCreateAPIView):
     serializer_class = UserSerializer
     queryset = User.objects.all()
+
+class ModuleAPIView(ListAPIView):
+    serializer_class = ModuleSerializer
+    queryset = Module.objects.all()
+
+class AvgAPIView(APIView):
+    serializer_class = AvgSerializer
+    queryset = Score.objects.all()
+
+    def post(self, request, format=None):
+        data = request.data
+        p_id = data.get('p_id')
+        module_id = data.get('module_id')
+        prof = Professor.objects.get(p_id=p_id)
+        module = Module.objects.get(module_id=module_id)
+        avg = 0
+        count = 0
+        scoreset = Score.objects.filter(professor = prof, module= module)
+        for i in scoreset:
+            avg += i.score
+            count += 1
+        avg = avg /count
+        message = "The rating of Professor %s (%s) is %f" %(prof.lastname, prof.p_id, avg)
+        return Response({"message":message},status=HTTP_200_OK)
+
+
 
 class ScoreViewSet(viewsets.ModelViewSet):
     queryset = Score.objects.all()
@@ -92,26 +113,4 @@ class ScoreViewSet(viewsets.ModelViewSet):
                 obj.delete()
             serializer.save(professor = prof, module = module, user = user)
 
-
-
-class AuthView(APIView):
-
-    def post(self,request,*args,**kwargs):
-        ret = {'code':1000,'msg':None}
-        try:
-            usr = request.data.get('username')
-            pas = request.data.get('password')
-            obj = User.objects.filter(username=usr,password=pas).first()
-            if not obj:
-                ret['code'] = '1001'
-                ret['msg'] = 'Username or password error'
-                return JsonResponse(ret)
-            token = str(time.time()) + usr
-            userToken.objects.update_or_create(username=obj, defaults={'token': token})
-            ret['msg'] = 'Login Success!'
-            #ret['token'] = token
-        except Exception as e:
-            ret['code'] = 1002
-            ret['msg'] = 'Request error'
-        return JsonResponse(ret)
 
