@@ -121,15 +121,18 @@ class ScoreViewSet(viewsets.ModelViewSet):
     permission_classes = (IsOwnerOrReadOnly,)
 
     def perform_create(self, serializer):
-        prof_id = self.request.data.get("professor")
-        m_id = self.request.data.get("module")
-        prof = Professor.objects.get(p_id=prof_id)
-        module = Module.objects.get(module_id=m_id)
-        user = User.objects.get(id=self.request.session.get('user_id'))
-        if prof is not None and module is not None:
-            obj = Score.objects.filter(user = user,professor = prof, module = module).first()
-            if obj is not None:
-                obj.delete()
-            serializer.save(professor = prof, module = module, user = user)
+        try:
+            prof_id = self.request.data.get("professor")
+            m_id = self.request.data.get("module")
+            prof = Professor.objects.get(p_id=prof_id)
+            module = Module.objects.get(module_id=m_id,prof = prof)
+            user = User.objects.get(id=self.request.session.get('user_id'))
+            if prof is not None and module is not None:
+                obj = Score.objects.filter(user = user,professor = prof, module = module).first()
+                if obj is not None:
+                    obj.delete()
+                serializer.save(professor = prof, module = module, user = user)
+        except:
+                return Response({"message":"No such professor or module!"},status=HTTP_400_BAD_REQUEST)
 
 
