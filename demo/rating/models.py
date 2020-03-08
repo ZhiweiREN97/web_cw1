@@ -9,8 +9,6 @@ class User(models.Model):
 
     def __str__(self):
         return self.username
-    def verify_password(self,password):
-        return self.password == password
 
 class userToken(models.Model):
     username = models.OneToOneField(to='User',on_delete=models.DO_NOTHING)
@@ -26,7 +24,6 @@ class Professor(models.Model):
 
     def __str__(self):
         return self.firstname
-
 
 class Module(models.Model):
     module_name = models.CharField(max_length=20)
