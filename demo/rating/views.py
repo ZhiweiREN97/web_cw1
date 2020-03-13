@@ -31,6 +31,7 @@ class UserLoginAPIView(APIView):
             serializer = UserSerializer(user)
             new_data = serializer.data            
             self.request.session['user_id'] = user.id
+            print (self.request.session['user_id'])
             return Response(new_data, status=HTTP_200_OK)
         return Response('password error', HTTP_400_BAD_REQUEST)
 

@@ -7,16 +7,57 @@ while(True):
         print ("Thank you for using the rating system!")
         break
     elif val[0] == 'register':
-        pass
+        username = input("Please enter your username:")
+        email = input("Please enter your email:")
+        password = input("Please enter your password:")
+        url = "http://zhiweiren1997.pythonanywhere.com/up/register/"
+        data = {"username":username,"password":password}
+        r = requests.post(url,data=data)
+        if r.status_code == 200:
+            print ("You have successfully registered!")
+        else:
+            print ("Registration error!")
     elif val[0] == 'login':
+        url = "http://zhiweiren1997.pythonanywhere.com/up/login/"
+        username = input("Please enter your username:")
+        password = input("Please enter your password:")
+        payload = {'username':username,'password':password}
+        r = requests.post(url,data = payload)
+        sessionid = r.headers['Set-Cookie'].split(";")[0]
+        if r.status_code == 200:
+            print ("Login successful!")
+        else:
+            print ("Login error!")
+    elif val[0] == 'test':
         pass
     elif val[0] == 'logout':
-        pass
+        url = "http://zhiweiren1997.pythonanywhere.com/up/logout/"
+        headers = {'Cookie': sessionid}
+        data = {"null":"null"}
+        r = requests.post(url,data,headers=headers)
+        print (r.text)
     elif val[0] == 'list':
-        pass
+        url = "http://zhiweiren1997.pythonanywhere.com/up/modules/"
+        r = requests.get(url)
+        print (r.text)
     elif val[0] == 'view':
-        pass
+        url = "http://zhiweiren1997.pythonanywhere.com/up/allavg/"
+        payload = {"data":"data"}
+        r = requests.post(url)
+        print (r.text)
     elif val[0] == 'average':
-        pass
+        url = "http://zhiweiren1997.pythonanywhere.com/up/avg/"
+        p_id = val[1]
+        module_id = val[2]
+        payload = {"p_id":p_id,"module_id":module_id}
+        r = requests.post(url,payload)
+        print (r.text)
     elif val[0] == 'rate':
-        pass
+        professor = val[1]
+        module = val[2]
+        score = val[5]
+        url = "http://zhiweiren1997.pythonanywhere.com/scores/"
+        data = {"score":score,"professor":professor,"module":module}
+        headers = {'Cookie': sessionid}
+        r = requests.post(url,data,headers=headers)
+        print (r.text)
