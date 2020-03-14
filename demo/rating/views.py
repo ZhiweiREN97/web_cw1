@@ -32,8 +32,8 @@ class UserLoginAPIView(APIView):
             new_data = serializer.data            
             self.request.session['user_id'] = user.id
             print (self.request.session['user_id'])
-            return Response(new_data, status=HTTP_200_OK)
-        return Response('password error', HTTP_400_BAD_REQUEST)
+            return Response('Login successful!', status=HTTP_200_OK)
+        return Response('Password error', HTTP_400_BAD_REQUEST)
 
 #Register
 class UserRegisterAPIView(APIView):
@@ -49,8 +49,8 @@ class UserRegisterAPIView(APIView):
         serializer = UserSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(serializer.data,status=HTTP_200_OK)
-        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+            return Response('Register Sucessful!',status=HTTP_200_OK)
+        return Response("Register error", status=HTTP_400_BAD_REQUEST)
 
 #Logout
 class LogoutAPIView(APIView):
@@ -60,9 +60,9 @@ class LogoutAPIView(APIView):
             return Response({"message":"You have not logged in yet!"},status=HTTP_400_BAD_REQUEST)
         elif self.request.session['user_id'] is not None:
             self.request.session['user_id'] = None
-            return Response({"message":"Logout Success"},status=HTTP_200_OK)
+            return Response("Logout Success",status=HTTP_200_OK)
         else:
-            return Response({"message":"You have not logged in yet"},status=HTTP_400_BAD_REQUEST)
+            return Response("You have not logged in yet",status=HTTP_400_BAD_REQUEST)
 
 #List All user
 class UsersAPIView(ListCreateAPIView):
@@ -98,7 +98,7 @@ class AvgAPIView(APIView):
             count += 1
         avg = avg /count
         message = "The rating of Professor %s (%s) in module %s (%s) is %f" %(prof.lastname, prof.p_id, module.module_name, module.module_id,avg)
-        return Response({"message":message},status=HTTP_200_OK)
+        return Response(message,status=HTTP_200_OK)
 
 #Rating of all professors
 class AllRatingAPIView(ListAPIView):
@@ -112,9 +112,10 @@ class AllRatingAPIView(ListAPIView):
             for j in scoreset:
                 avg_rating += j.score
                 count += 1
-            avg_rating = avg_rating / count
+            if count !=0:
+                avg_rating = avg_rating / count
             message = message + "The rating of professor %s (%s) is %f \n" %(i.lastname, i.p_id, avg_rating) 
-        return Response({"message":message},status=HTTP_200_OK)
+        return Response(message,status=HTTP_200_OK)
 
 
 

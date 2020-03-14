@@ -23,11 +23,12 @@ while(True):
         password = input("Please enter your password:")
         payload = {'username':username,'password':password}
         r = requests.post(url,data = payload)
-        sessionid = r.headers['Set-Cookie'].split(";")[0]
         if r.status_code == 200:
-            print ("Login successful!")
+            print (r.text)
+            sessionid = r.headers['Set-Cookie'].split(";")[0]
         else:
-            print ("Login error!")
+            print (r.text)
+        
     elif val[0] == 'test':
         pass
     elif val[0] == 'logout':
@@ -36,6 +37,8 @@ while(True):
         data = {"null":"null"}
         r = requests.post(url,data,headers=headers)
         print (r.text)
+        for k,v in r.text.item():
+            print (v)
     elif val[0] == 'list':
         url = "http://zhiweiren1997.pythonanywhere.com/up/modules/"
         r = requests.get(url)
