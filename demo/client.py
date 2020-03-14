@@ -37,8 +37,7 @@ while(True):
         data = {"null":"null"}
         r = requests.post(url,data,headers=headers)
         print (r.text)
-        for k,v in r.text.item():
-            print (v)
+        print ("a \na")
     elif val[0] == 'list':
         url = "http://zhiweiren1997.pythonanywhere.com/up/modules/"
         r = requests.get(url)
@@ -47,7 +46,9 @@ while(True):
         url = "http://zhiweiren1997.pythonanywhere.com/up/allavg/"
         payload = {"data":"data"}
         r = requests.post(url)
-        print (r.text)
+        r = r.text.split(";")
+        for i in r:
+            print(i)
     elif val[0] == 'average':
         url = "http://zhiweiren1997.pythonanywhere.com/up/avg/"
         p_id = val[1]
