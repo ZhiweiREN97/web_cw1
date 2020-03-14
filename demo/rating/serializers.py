@@ -9,7 +9,7 @@ class UserSerializer(serializers.ModelSerializer):
 class ScoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Score
-        fields = ('id','score','professor','module')
+        fields = ('id','score','professor')
 
 
 class ModuleSerializer(serializers.ModelSerializer):

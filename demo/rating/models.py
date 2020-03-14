@@ -34,7 +34,7 @@ class Module(models.Model):
                                        MinValueValidator(1)
                                    ])
     description = models.TextField()
-    module_id = models.CharField(max_length=10,primary_key=True)
+    module_id = models.CharField(max_length=10)
     prof = models.ManyToManyField(Professor)
 
     def __str__(self):
