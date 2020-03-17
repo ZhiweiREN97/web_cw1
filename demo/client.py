@@ -1,4 +1,5 @@
 import requests
+import prettytable as pt
 url_h = "http://127.0.0.1:8000/"
 while(True):
     val = input("Please enter your command:")
@@ -40,12 +41,24 @@ while(True):
     elif val[0] == 'list':
         url = url_h + "up/modules/"
         r = requests.get(url)
-        print (r.text)
+        text = str(r.text).strip('"')
+        text = text.split("\\n")
+        for i in range(len(text)):
+            text[i] = text[i].split(";")
+        print (len(text[1]))
+        tb = pt.PrettyTable()
+        tb.field_names = text[0]
+        for i in text[1:]:
+            print (len(i))
+            if len(i) == 1:
+                continue
+            tb.add_row(i)
+        print (tb)
     elif val[0] == 'view':
         url = url_h + "up/allavg/"
         payload = {"data":"data"}
         r = requests.post(url)
-        r = r.text.split(";")
+        r = r.text.strip('"').split(";")
         for i in r:
             print(i)
     elif val[0] == 'average':

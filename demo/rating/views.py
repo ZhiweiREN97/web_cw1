@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rating.permissions import IsOwnerOrReadOnly
-
+from decimal import Decimal, ROUND_HALF_UP
 #Login
 class UserLoginAPIView(APIView):
     queryset = User.objects.all()
@@ -78,26 +78,46 @@ class UserAPIView(ListCreateAPIView):
 class ModuleAPIView(ListAPIView):
     serializer_class = ModuleSerializer
     queryset = Module.objects.all()
+    def get(self, request, *args, **kwargs):
+        queryset = Module.objects.all()
+        message = "Code;Name;Year;Semester;Taught by\n"
+        for i in queryset:
+            count = 0
+            message += i.module_id + ";" + i.module_name + ";" + str(i.year) + ";" + str(i.semester) + ";"
+            for j in i.prof.all():
+                if count==0:
+                    message += j.p_id +", Professor " + j.firstname + j.lastname +"\n"
+                    count +=1
+                else:
+                    pass
+                    message += ";;;;" + j.p_id +", Professor " + j.firstname + j.lastname +"\n"                           
+        return Response(message)
 
 #Avg of one module one professor
 class AvgAPIView(APIView):
     serializer_class = AvgSerializer
     queryset = Score.objects.all()
-
     def post(self, request, format=None):
-        data = request.data
+        data = self.request.data
         p_id = data.get('p_id')
+        print ("pid",p_id)
         module_id = data.get('module_id')
         prof = Professor.objects.get(p_id=p_id)
-        module = Module.objects.get(module_id=module_id)
+        module = Module.objects.filter(module_id=module_id)
+        m_sample = Module.objects.filter(module_id=module_id).first()
+        module_name = m_sample.module_name
         avg = 0
         count = 0
-        scoreset = Score.objects.filter(professor = prof, module= module)
-        for i in scoreset:
-            avg += i.score
-            count += 1
-        avg = avg /count
-        message = "The rating of Professor %s (%s) in module %s (%s) is %f ;" %(prof.lastname, prof.p_id, module.module_name, module.module_id,avg)
+        scoreset = Score.objects.all()#filter(professor = prof, module= module)
+        for i in module:
+            scoreset = Score.objects.filter(professor = prof, module=i)
+            for j in scoreset:
+                avg += j.score
+                count += 1
+        if count !=0:
+            avg = Decimal(avg /count)
+            avg = avg.quantize(Decimal('0'),rounding=ROUND_HALF_UP)
+        message = "The rating of Professor %s (%s) in module %s (%s) is %.1f ;" %(prof.lastname, prof.p_id, module_name, m_sample.module_id,avg)
         return Response(message,status=HTTP_200_OK)
 
 #Rating of all professors
@@ -105,7 +125,6 @@ class AllRatingAPIView(ListAPIView):
     def post(self, request, format=None):
         profset = Professor.objects.all()
         message = ""
-        from decimal import Decimal, ROUND_HALF_UP
         for i in profset:
             avg_rating = 0
             count = 0
@@ -116,7 +135,7 @@ class AllRatingAPIView(ListAPIView):
             if count !=0:
                 avg_rating = Decimal(avg_rating / count)
                 avg_rating = avg_rating.quantize(Decimal('0'),rounding= ROUND_HALF_UP)
-            message = message + "The rating of professor %s (%s) is %f ;" %(i.lastname, i.p_id, avg_rating) 
+            message = message + "The rating of professor %s (%s) is %.1f ;" %(i.lastname, i.p_id, avg_rating) 
         return Response(message,status=HTTP_200_OK)
 
 
