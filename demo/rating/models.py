@@ -26,7 +26,7 @@ class Professor(models.Model):
         return self.firstname
 
 class Module(models.Model):
-    module_name = models.CharField(max_length=20)
+    module_name = models.CharField(max_length=50)
     year = models.IntegerField(default=2000)
     semester = models.IntegerField(default=1,
                                    validators=[

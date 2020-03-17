@@ -105,6 +105,7 @@ class AllRatingAPIView(ListAPIView):
     def post(self, request, format=None):
         profset = Professor.objects.all()
         message = ""
+        from decimal import Decimal, ROUND_HALF_UP
         for i in profset:
             avg_rating = 0
             count = 0
@@ -113,7 +114,8 @@ class AllRatingAPIView(ListAPIView):
                 avg_rating += j.score
                 count += 1
             if count !=0:
-                avg_rating = avg_rating / count
+                avg_rating = Decimal(avg_rating / count)
+                avg_rating = avg_rating.quantize(Decimal('0'),rounding= ROUND_HALF_UP)
             message = message + "The rating of professor %s (%s) is %f ;" %(i.lastname, i.p_id, avg_rating) 
         return Response(message,status=HTTP_200_OK)
 
@@ -131,8 +133,10 @@ class ScoreViewSet(viewsets.ModelViewSet):
         try:
             prof_id = self.request.data.get("professor")
             m_id = self.request.data.get("module")
+            semester = self.request.data.get("semester")
+            year = self.request.data.get("year")
             prof = Professor.objects.get(p_id=prof_id)
-            module = Module.objects.get(module_id=m_id,prof = prof)
+            module = Module.objects.get(module_id=m_id,prof = prof,semester=semester,year=year)
             user = User.objects.get(id=self.request.session.get('user_id'))
             if prof is not None and module is not None:
                 obj = Score.objects.filter(user = user,professor = prof, module = module).first()

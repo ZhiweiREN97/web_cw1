@@ -1,5 +1,5 @@
 import requests
-
+url_h = "http://127.0.0.1:8000/"
 while(True):
     val = input("Please enter your command:")
     val = val.split(" ")
@@ -10,15 +10,15 @@ while(True):
         username = input("Please enter your username:")
         email = input("Please enter your email:")
         password = input("Please enter your password:")
-        url = "http://zhiweiren1997.pythonanywhere.com/up/register/"
-        data = {"username":username,"password":password}
+        url = url_h + "up/register/"
+        data = {"username":username,"password":password,"email":email}
         r = requests.post(url,data=data)
         if r.status_code == 200:
             print ("You have successfully registered!")
         else:
             print ("Registration error!")
     elif val[0] == 'login':
-        url = "http://zhiweiren1997.pythonanywhere.com/up/login/"
+        url = url_h + "up/login/"
         username = input("Please enter your username:")
         password = input("Please enter your password:")
         payload = {'username':username,'password':password}
@@ -32,25 +32,24 @@ while(True):
     elif val[0] == 'test':
         pass
     elif val[0] == 'logout':
-        url = "http://zhiweiren1997.pythonanywhere.com/up/logout/"
+        url = url_h + "up/logout/"
         headers = {'Cookie': sessionid}
         data = {"null":"null"}
         r = requests.post(url,data,headers=headers)
         print (r.text)
-        print ("a \na")
     elif val[0] == 'list':
-        url = "http://zhiweiren1997.pythonanywhere.com/up/modules/"
+        url = url_h + "up/modules/"
         r = requests.get(url)
         print (r.text)
     elif val[0] == 'view':
-        url = "http://zhiweiren1997.pythonanywhere.com/up/allavg/"
+        url = url_h + "up/allavg/"
         payload = {"data":"data"}
         r = requests.post(url)
         r = r.text.split(";")
         for i in r:
             print(i)
     elif val[0] == 'average':
-        url = "http://zhiweiren1997.pythonanywhere.com/up/avg/"
+        url = url_h + "up/avg/"
         p_id = val[1]
         module_id = val[2]
         payload = {"p_id":p_id,"module_id":module_id}
@@ -59,9 +58,11 @@ while(True):
     elif val[0] == 'rate':
         professor = val[1]
         module = val[2]
+        year = val[3]
+        semester = val[4]
         score = val[5]
-        url = "http://zhiweiren1997.pythonanywhere.com/scores/"
-        data = {"score":score,"professor":professor,"module":module}
+        url = url_h + "scores/"
+        data = {"score":score,"professor":professor,"module":module,"semester":semester,"year":year}
         headers = {'Cookie': sessionid}
         r = requests.post(url,data,headers=headers)
         print (r.text)
