@@ -21,7 +21,6 @@ from rating.views import *
 from rest_framework import routers
 
 router = routers.DefaultRouter()
-router.register(r'scores',ScoreViewSet)
 urlpatterns = [
     url(r'^',include(router.urls)),
     path('admin/', admin.site.urls),

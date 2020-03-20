@@ -58,31 +58,37 @@ while(True):
         url = url_h + "up/allavg/"
         payload = {"data":"data"}
         r = requests.post(url)
-        r = r.text.strip('"').split(";")
-        for i in r:
-            print(i)
+        if r.status_code == 200:
+            r = r.text.strip('"').split(";")
+            for i in r:
+                print(i)
+        else:
+            print ("Error!")
     elif val[0] == 'average':
         url = url_h + "up/avg/"
         p_id = val[1]
         module_id = val[2]
         payload = {"p_id":p_id,"module_id":module_id}
         r = requests.post(url,payload)
-        print (r.text.strip('"'))
+        if r.status_code==200:
+            print (r.text.strip('"'))
+        else:
+            print ("Your may enter the wrong professor id or module id!")
     elif val[0] == 'rate':
         professor = val[1]
         module = val[2]
         year = val[3]
         semester = val[4]
         score = val[5]
-        url = url_h + "scores/"
+        url = url_h + "up/rating/"
         data = {"score":score,"professor":professor,"module":module,"semester":semester,"year":year}
         if sessionid is not None:
             headers = {'Cookie': sessionid}
             r = requests.post(url,data,headers=headers)
             if r.status_code == 201:
-                print ("Rating successful!")
+                print (r.text)
             else:
-                print ("Rating error!")
+                print (r.text)
         else: 
             print ("You havn't logged in yet!")
     else:

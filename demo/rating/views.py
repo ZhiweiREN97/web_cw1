@@ -2,11 +2,8 @@ from django.shortcuts import render
 from rating.models import User, Score, Professor, Module
 from rating.serializers import *
 from rest_framework.generics import ListCreateAPIView, ListAPIView
-from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework import viewsets
-from rest_framework.permissions import AllowAny
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
@@ -16,7 +13,6 @@ from decimal import Decimal, ROUND_HALF_UP
 class UserLoginAPIView(APIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]
 
     def post(self, request, format=None):
         data = request.data
@@ -28,7 +24,7 @@ class UserLoginAPIView(APIView):
         else:
             return Response('No such username or password!')
         if user.password == password:
-            serializer = UserSerializer(user)
+            #user.id is a PK
             self.request.session['user_id'] = user.id
             print (self.request.session['user_id'])
             return Response('Login successful!', status=HTTP_200_OK)
@@ -38,7 +34,6 @@ class UserLoginAPIView(APIView):
 class UserRegisterAPIView(APIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (AllowAny,)
 
     def post(self, request, format=None):
         data = request.data
@@ -89,7 +84,6 @@ class ModuleAPIView(ListAPIView):
 
 #Avg of one module one professor
 class AvgAPIView(APIView):
-    serializer_class = AvgSerializer
     queryset = Score.objects.all()
     def post(self, request, format=None):
         data = self.request.data
@@ -132,16 +126,18 @@ class AllRatingAPIView(ListAPIView):
             message = message + "The rating of professor %s (%s) is %.1f ;" %(i.lastname, i.p_id, avg_rating) 
         return Response(message,status=HTTP_200_OK)
 
-class ScoreViewSet(viewsets.ModelViewSet):
+#Rate the professors 
+class RatingAPIView(APIView):
     queryset = Score.objects.all()
-    serializer_class = ScoreSerializer
-    permission_classes = (IsOwnerOrReadOnly,)
-    def perform_create(self, serializer):
+    serializer = ScoreSerializer
+    def post(self, request, format=None):
+        data = request.data
         try:
-            prof_id = self.request.data.get("professor")
-            m_id = self.request.data.get("module")
-            semester = self.request.data.get("semester")
-            year = self.request.data.get("year")
+            prof_id = data.get("professor")
+            m_id = data.get("module")
+            semester = data.get("semester")
+            year = data.get("year")
+            rating = data.get("score")
             prof = Professor.objects.get(p_id=prof_id)
             module = Module.objects.get(module_id=m_id,prof = prof,semester=semester,year=year)
             user = User.objects.get(id=self.request.session.get('user_id'))
@@ -149,9 +145,9 @@ class ScoreViewSet(viewsets.ModelViewSet):
                 obj = Score.objects.filter(user = user,professor = prof, module = module).first()
                 if obj is not None:
                     obj.delete()
-                serializer.save(professor = prof, module = module, user = user)
+                Score.objects.create(professor = prof, module = module, user = user,score=rating)
                 return Response("Rating successful!",status=HTTP_200_OK)
         except:
-                return Response({"message":"No such professor or module!"},status=HTTP_400_BAD_REQUEST)
+                return Response("No such professor or module!",status=HTTP_400_BAD_REQUEST)
 
 

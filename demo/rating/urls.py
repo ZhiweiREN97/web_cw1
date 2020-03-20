@@ -9,5 +9,6 @@ urlpatterns = [
     path('logout/',LogoutAPIView.as_view()),
     path('modules/',ModuleAPIView.as_view()),
     path('avg/',AvgAPIView.as_view()),
-    path('allavg/',AllRatingAPIView.as_view())
+    path('allavg/',AllRatingAPIView.as_view()),
+    path('rating/',RatingAPIView.as_view())
 ]
