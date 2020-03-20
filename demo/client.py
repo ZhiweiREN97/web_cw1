@@ -1,6 +1,6 @@
 import requests
 import prettytable as pt
-url_h = "http://127.0.0.1:8000/"
+url_h = "sc16zr.pythonanywhere.com"
 #Initializing sessionid
 sessionid = None
 while(True):
@@ -65,31 +65,36 @@ while(True):
         else:
             print ("Error!")
     elif val[0] == 'average':
-        url = url_h + "up/avg/"
-        p_id = val[1]
-        module_id = val[2]
-        payload = {"p_id":p_id,"module_id":module_id}
-        r = requests.post(url,payload)
-        if r.status_code==200:
-            print (r.text.strip('"'))
-        else:
-            print ("Your may enter the wrong professor id or module id!")
-    elif val[0] == 'rate':
-        professor = val[1]
-        module = val[2]
-        year = val[3]
-        semester = val[4]
-        score = val[5]
-        url = url_h + "up/rating/"
-        data = {"score":score,"professor":professor,"module":module,"semester":semester,"year":year}
-        if sessionid is not None:
-            headers = {'Cookie': sessionid}
-            r = requests.post(url,data,headers=headers)
-            if r.status_code == 201:
-                print (r.text)
+        if len(val)<3:
+            url = url_h + "up/avg/"
+            p_id = val[1]
+            module_id = val[2]
+            payload = {"p_id":p_id,"module_id":module_id}
+            r = requests.post(url,payload)
+            if r.status_code==200:
+                print (r.text.strip('"'))
             else:
-                print (r.text)
-        else: 
-            print ("You havn't logged in yet!")
-    else:
-        print ("You havn't print the correct commands!\n")
+                print ("Your may enter the wrong professor id or module id!")
+        else:
+            print ("You need to enter 3 parameters!")
+    elif val[0] == 'rate':
+        if len(val) !=6:
+            professor = val[1]
+            module = val[2]
+            year = val[3]
+            semester = val[4]
+            score = val[5]
+            url = url_h + "up/rating/"
+            data = {"score":score,"professor":professor,"module":module,"semester":semester,"year":year}
+            if sessionid is not None:
+                headers = {'Cookie': sessionid}
+                r = requests.post(url,data,headers=headers)
+                if r.status_code == 200:
+                    print (r.text)
+                else:
+                    print (r.text)
+            else: 
+                print ("You havn't logged in yet!")
+        else:
+            print ("You havn't print the correct commands!\n")
+        
