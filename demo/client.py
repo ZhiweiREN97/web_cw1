@@ -1,6 +1,6 @@
 import requests
 import prettytable as pt
-url_h = "sc16zr.pythonanywhere.com"
+url_h = "http://sc16zr.pythonanywhere.com/"
 #Initializing sessionid
 sessionid = None
 while(True):
@@ -65,7 +65,7 @@ while(True):
         else:
             print ("Error!")
     elif val[0] == 'average':
-        if len(val)<3:
+        if len(val)==3:
             url = url_h + "up/avg/"
             p_id = val[1]
             module_id = val[2]
@@ -78,7 +78,7 @@ while(True):
         else:
             print ("You need to enter 3 parameters!")
     elif val[0] == 'rate':
-        if len(val) !=6:
+        if len(val) ==6:
             professor = val[1]
             module = val[2]
             year = val[3]
