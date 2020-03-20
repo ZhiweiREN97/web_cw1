@@ -6,16 +6,9 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 class User(models.Model):
     username = models.CharField(max_length=16, unique=True)
     password = models.CharField(max_length=16)
-
+    email = models.CharField(max_length=30, unique=True)
     def __str__(self):
         return self.username
-
-class userToken(models.Model):
-    username = models.OneToOneField(to='User',on_delete=models.DO_NOTHING)
-    token = models.CharField(max_length=60)
-
-    def __str__(self):
-        return self.username.username +"'s token"
 
 class Professor(models.Model):
     firstname = models.CharField(max_length=10)

@@ -26,5 +26,4 @@ urlpatterns = [
     url(r'^',include(router.urls)),
     path('admin/', admin.site.urls),
     path('up/', include('rating.urls')),
-    path('account/', include('account.urls')),
 ]

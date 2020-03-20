@@ -1,6 +1,8 @@
 import requests
 import prettytable as pt
 url_h = "http://127.0.0.1:8000/"
+#Initializing sessionid
+sessionid = None
 while(True):
     val = input("Please enter your command:")
     val = val.split(" ")
@@ -14,10 +16,7 @@ while(True):
         url = url_h + "up/register/"
         data = {"username":username,"password":password,"email":email}
         r = requests.post(url,data=data)
-        if r.status_code == 200:
-            print ("You have successfully registered!")
-        else:
-            print ("Registration error!")
+        print (r.text)
     elif val[0] == 'login':
         url = url_h + "up/login/"
         username = input("Please enter your username:")
@@ -28,31 +27,32 @@ while(True):
             print (r.text)
             sessionid = r.headers['Set-Cookie'].split(";")[0]
         else:
-            print (r.text)
-        
-    elif val[0] == 'test':
-        pass
+            print ("You may enter the wrong username or password!")
+
     elif val[0] == 'logout':
         url = url_h + "up/logout/"
         headers = {'Cookie': sessionid}
         data = {"null":"null"}
         r = requests.post(url,data,headers=headers)
         print (r.text)
+        #Set sessionid to None
+        sessionid = None
     elif val[0] == 'list':
         url = url_h + "up/modules/"
         r = requests.get(url)
-        text = str(r.text).strip('"')
-        text = text.split("\\n")
+        #Formatting the message to let prettytable output it
+        text = str(r.text).strip('"') #remove "
+        text = text.split("\\n")#Notice that the last element is empty
+        #Split the message by ;
         for i in range(len(text)):
             text[i] = text[i].split(";")
-        print (len(text[1]))
         tb = pt.PrettyTable()
+        #text[0] is the table header
         tb.field_names = text[0]
-        for i in text[1:]:
-            print (len(i))
-            if len(i) == 1:
-                continue
+        #The last row will only have one element
+        for i in text[1:-1]:
             tb.add_row(i)
+        #Print the prettytable
         print (tb)
     elif val[0] == 'view':
         url = url_h + "up/allavg/"
@@ -67,7 +67,7 @@ while(True):
         module_id = val[2]
         payload = {"p_id":p_id,"module_id":module_id}
         r = requests.post(url,payload)
-        print (r.text)
+        print (r.text.strip('"'))
     elif val[0] == 'rate':
         professor = val[1]
         module = val[2]
@@ -76,6 +76,14 @@ while(True):
         score = val[5]
         url = url_h + "scores/"
         data = {"score":score,"professor":professor,"module":module,"semester":semester,"year":year}
-        headers = {'Cookie': sessionid}
-        r = requests.post(url,data,headers=headers)
-        print (r.text)
+        if sessionid is not None:
+            headers = {'Cookie': sessionid}
+            r = requests.post(url,data,headers=headers)
+            if r.status_code == 201:
+                print ("Rating successful!")
+            else:
+                print ("Rating error!")
+        else: 
+            print ("You havn't logged in yet!")
+    else:
+        print ("You havn't print the correct commands!\n")

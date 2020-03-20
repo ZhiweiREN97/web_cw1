@@ -1,11 +1,9 @@
 from django.shortcuts import render
-from rating.models import User, userToken, Score, Professor, Module
+from rating.models import User, Score, Professor, Module
 from rating.serializers import *
 from rest_framework.generics import ListCreateAPIView, ListAPIView
 from django.http import JsonResponse
 from rest_framework.views import APIView
-import time
-
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.renderers import JSONRenderer
@@ -25,15 +23,16 @@ class UserLoginAPIView(APIView):
         username = data.get('username')
         password = data.get('password')
         
-        user = User.objects.get(username=username)
-
+        if User.objects.get(username=username):
+            user = User.objects.get(username=username)
+        else:
+            return Response('No such username or password!')
         if user.password == password:
             serializer = UserSerializer(user)
-            new_data = serializer.data            
             self.request.session['user_id'] = user.id
             print (self.request.session['user_id'])
             return Response('Login successful!', status=HTTP_200_OK)
-        return Response('Password error', HTTP_400_BAD_REQUEST)
+        return Response('Password error', status=HTTP_400_BAD_REQUEST)
 
 #Register
 class UserRegisterAPIView(APIView):
@@ -44,8 +43,11 @@ class UserRegisterAPIView(APIView):
     def post(self, request, format=None):
         data = request.data
         username = data.get('username')
+        email = data.get('email')
         if User.objects.filter(username__exact=username):
             return Response("Username exists",HTTP_400_BAD_REQUEST)
+        elif User.objects.filter(email=email):
+            return Response("Email exists",HTTP_400_BAD_REQUEST)
         serializer = UserSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -64,22 +66,13 @@ class LogoutAPIView(APIView):
         else:
             return Response("You have not logged in yet",status=HTTP_400_BAD_REQUEST)
 
-#List All user
-class UsersAPIView(ListCreateAPIView):
-    serializer_class = UserSerializer
-    queryset = User.objects.all()
-
-#List a user
-class UserAPIView(ListCreateAPIView):
-    serializer_class = UserSerializer
-    queryset = User.objects.all()
-
 #List all modules
 class ModuleAPIView(ListAPIView):
     serializer_class = ModuleSerializer
     queryset = Module.objects.all()
     def get(self, request, *args, **kwargs):
         queryset = Module.objects.all()
+        #Formatting the message to output prettytable
         message = "Code;Name;Year;Semester;Taught by\n"
         for i in queryset:
             count = 0
@@ -90,8 +83,9 @@ class ModuleAPIView(ListAPIView):
                     count +=1
                 else:
                     pass
-                    message += ";;;;" + j.p_id +", Professor " + j.firstname + j.lastname +"\n"                           
-        return Response(message)
+                    message += ";;;;" + j.p_id +", Professor " + j.firstname + j.lastname +"\n"
+                    #message += ";;;;\n"                           
+        return Response(message, status=HTTP_200_OK)
 
 #Avg of one module one professor
 class AvgAPIView(APIView):
@@ -117,7 +111,7 @@ class AvgAPIView(APIView):
         if count !=0:
             avg = Decimal(avg /count)
             avg = avg.quantize(Decimal('0'),rounding=ROUND_HALF_UP)
-        message = "The rating of Professor %s (%s) in module %s (%s) is %.1f ;" %(prof.lastname, prof.p_id, module_name, m_sample.module_id,avg)
+        message = "The rating of Professor %s (%s) in module %s (%s) is %.1f " %(prof.lastname, prof.p_id, module_name, m_sample.module_id,avg)
         return Response(message,status=HTTP_200_OK)
 
 #Rating of all professors
@@ -138,16 +132,10 @@ class AllRatingAPIView(ListAPIView):
             message = message + "The rating of professor %s (%s) is %.1f ;" %(i.lastname, i.p_id, avg_rating) 
         return Response(message,status=HTTP_200_OK)
 
-
-
-
-
-
 class ScoreViewSet(viewsets.ModelViewSet):
     queryset = Score.objects.all()
     serializer_class = ScoreSerializer
     permission_classes = (IsOwnerOrReadOnly,)
-
     def perform_create(self, serializer):
         try:
             prof_id = self.request.data.get("professor")
@@ -162,6 +150,7 @@ class ScoreViewSet(viewsets.ModelViewSet):
                 if obj is not None:
                     obj.delete()
                 serializer.save(professor = prof, module = module, user = user)
+                return Response("Rating successful!",status=HTTP_200_OK)
         except:
                 return Response({"message":"No such professor or module!"},status=HTTP_400_BAD_REQUEST)
 
