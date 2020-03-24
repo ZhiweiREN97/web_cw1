@@ -7,7 +7,6 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
-from rating.permissions import IsOwnerOrReadOnly
 from decimal import Decimal, ROUND_HALF_UP
 #Login
 class UserLoginAPIView(APIView):
